@@ -5,11 +5,12 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import UserDetail, Slider, Contact, Cart
 from django.contrib.auth.decorators import login_required
-from saler.models import MainProduct, Product, ProductSize, dow, category, Orders, trend, ProductReview
+from saler.models import Results,MainProduct, Product, ProductSize, dow, category, Orders, trend, ProductReview
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.csrf import csrf_exempt
 from .PayTm import Checksum
+import logging
 
 def index(request):
 	if request.user.is_superuser:
@@ -227,6 +228,8 @@ def add_to_cart(request):
 				item.save()
 				return HttpResponse(len(cart_prods))
 		Cart(user = request.user, product_id = int(prod_id[0]),product_size=prod_id[1], number = 1).save()
+		userDetail = UserDetail.objects.get(user = request.user)
+		Results(user_id = userDetail.u_id,cat_name = prod_id[0]).save()
 		return HttpResponse(len(cart_prods)+1)
 	else:
 		return HttpResponse("")

@@ -262,3 +262,7 @@ class MainProduct(models.Model):
 class MainCat(models.Model):
 	cat_id=models.CharField(max_length=100)
 	cat_name=models.CharField(max_length=100)
+
+class Results(models.Model):
+	user_id = models.CharField(max_length=100)
+	cat_name = models.CharField(max_length=100)

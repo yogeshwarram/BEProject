@@ -1,8 +1,10 @@
 from django.contrib import admin
 from .models import UserDetail, Slider, Contact, Cart
-from saler.models import MainCat, MainProduct, StudentData, Product, ProductSize, SalerDetail, category, dow, SellerSlider, MyCart, WholeSaleProduct, Orders, trend,WholeSaleProductOrders
+from saler.models import Results, MainCat, MainProduct, Results, StudentData, Product, ProductSize, SalerDetail, category, dow, SellerSlider, MyCart, WholeSaleProduct, Orders, trend,WholeSaleProductOrders
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+
+
 
 class StudentResource(resources.ModelResource):
    class Meta:
@@ -27,6 +29,7 @@ admin.site.register(MainCat,MainCatAdmin)
 
 admin.site.site_header = 'Wrappers'
 
+admin.site.register(Results)
 admin.site.register(UserDetail)
 admin.site.register(Product)
 admin.site.register(ProductSize)

@@ -42,7 +42,7 @@ class UserDetail(models.Model):
 		("Uttar Pradesh",'Uttar Pradesh'),
 		("West Bengal",'West Bengal'),
 		)
-	user = models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	dob = models.DateField(null = True)
 	photo = models.ImageField(default='default.png',upload_to='user_photos')
 	mobile = models.CharField(max_length=10,null=True)
@@ -54,7 +54,8 @@ class UserDetail(models.Model):
 	city = models.CharField(max_length=100, null=True, blank=True)
 	state = models.CharField(max_length=50,choices=STATE_CHOICES, null=True)
 	sex = models.CharField(max_length=6,choices=SEX_CHOICES, null=True)
-        
+	u_id = models.AutoField(primary_key=True)
+    
 	def save(self, *args, **kwargs):
 		super().save(*args, **kwargs)
 
