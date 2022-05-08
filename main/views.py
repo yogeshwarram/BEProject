@@ -68,6 +68,7 @@ def index(request):
 		n = len(prod)
 		nSlides = 5
 		allProds.append([prod[::-1], range(1, nSlides), nSlides])
+
 	params = {
 		'sliders':Slider.objects.all(),
 		'allProds':allProds,
@@ -78,7 +79,11 @@ def index(request):
 		'dow' : dow.objects.all()[0:30],
 		'trend': trend.objects.order_by('-number')[0:30],
 		'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
+		'main_prod': MainProduct.objects.all(),	
 	}
+
+	print(MainProduct.objects.all())
+	
 	return render(request, 'main/index.html', params)
 
 def register(request):

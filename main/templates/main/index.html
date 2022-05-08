@@ -155,6 +155,7 @@
 				<!-- Treand -->
 		<div class="row">
 			<div class="col-md-12">
+				
 				<h2>Trending <b>Products</b></h2>
 				<div style="text-align: center;">
 				<a href="/products/trend" class="btn"
@@ -174,15 +175,19 @@
 					<div class="carousel-inner">
 						<div class="item carousel-item active">
 							<div class="row">
-								{% for i in trend %}
+								<!-- {% for i in main_prod %}
+								<h1>{{i.product_name}}</h1>
+								{% endfor %} -->
+								{% for i in main_prod %}
 								<div class="col-sm-2 p-0 pr-2">
 									<div class="thumb-wrapper">
 										<div class="img-box">
-											<img src="{{i.product.image1.url}}" class="img-responsive img-fluid" alt="">
+											<img src="{{j.product.image1.url}}" class="img-responsive img-fluid" alt="">
 										</div>
 										<div class="thumb-content">
-											<h4><a href="product/{{i.product_id}}" style="text-decoration: none; color: #231f20">
-													{{i.product.product_name}}</a></h4>
+											<h4><a href="product/{{i.product_id}" style="text-decoration: none; color: #231f20">
+													{{i.product_name}}</a></h4>
+												
 											<p class="item-price"><strike><i class="fa fa-inr"
 														aria-hidden="true"></i>{{i.product.price_not}}</strike> <span><i
 														class="fa fa-inr" aria-hidden="true"></i>{{i.product.price}}</span></p>
@@ -212,117 +217,27 @@
 			</div>
 		</div>
 	</div>
-	<div class="container-fluid">
-		{% for product, range, nSlides in allProds %}
-		<h2>Flash Sale On <b>{{product.0.0.category}}</b></h2>
-		<div id="demo{{forloop.counter}}" class="carousel carousel1 slide" data-ride="carousel" data-interval="0">
-			<div style="text-align: center;">
-				<a href="/products/{{product.0.0.category}}" class="btn"
-					style="color: #be2714; font-size: 14px; padding-top: 0;  margin-top: -20px;">
-					<i class="fa fa-eye" aria-hidden="true" style=""></i> View All
-				</a></div>
-			<ol class="carousel-indicators">
-				<li data-target="#demo{{forloop.counter}}" data-slide-to="0" class="active"></li>
 
-				{% for i in range %}
-				<li data-target="#demo{{forloop.parentloop.counter}}" data-slide-to="{{i}}"></li>
-				{% endfor %}
-			</ol>
-
-
-			<div class="carousel-inner">
-
-				<div class="item carousel-item active">
-
-					<div class="row">
-						{% for i in product %}
-
-						<div class="col-sm-2 p-0 pr-2">
-							<div class="thumb-wrapper">
-								<div class="img-box">
-									<img src="{{i.0.image1.url}}" class="img-responsive img-fluid" alt="">
-								</div>
-								<div class="thumb-content">
-									<h4><a href="product/{{i.0.product_id}}" style="text-decoration: none; color: #231f20">
-											{{i.0.product_name}}</a>
-									</h4>
-									<p class="item-price"><strike><i class="fa fa-inr"
-														aria-hidden="true"></i>{{i.0.price_not}}</strike> <span><i class="fa fa-inr"
-												aria-hidden="true"></i>{{i.0.price}}</span></p>
-
-									<div>
-										{% if i.1 %}
-										<a p_id="{{i.0.product_id}}" class="btn btn-primary oprbtn" id="ord{{i.0.product_id}}">Order Now</a>
-										<div id="ord{{i.0.product_id}}sizesof" style="display: none;">
-													{% for me in i.1 %}
-													<form method="GET" style="display: inline;" action="/order_now">
-														<input type="text" name="prod_id" value="{{i.0.product_id}}" style="display: none;">
-														<input type="size" name="prod_size" value="{{me.size}}" style="display: none;">
-														<button type="submit" class="btn pt-1 pb-1 pr-2 pl-2">{{me.size}}</button>
-													</form>	
-													{% endfor %}
-												</div>
-												<a p_id="{{i.0.product_id}}" class="btn btn-primary oprbtn"  style="padding: 5px 10px 5px 5px;" id="atc{{i.0.product_id}}"><i class="fa fa-cart-plus" aria-hidden="true"></i></a>
-												<div id="atc{{i.0.product_id}}sizesof" style="display: none;">
-													{% for me in i.1 %}
-													<a prod_id="{{i.0.product_id}}" class="btn pt-1 pb-1 pr-2 pl-2 add_to_cart">{{me.size}}</a>
-													{% endfor %}
-												</div>
-										{% else %}
-											<form method="GET" style="display: inline;" action="/order_now">
-														<input type="text" name="prod_id" value="{{i.0.product_id}}" style="display: none;">
-										
-														<button type="submit" class="btn btn-primary oprbtn">Order Now</button>
-													</form>	
-												<a prod_id="{{i.0.product_id}}" class="btn pt-1 pb-1 pr-2 pl-2 add_to_cart"><i class="fa fa-cart-plus" aria-hidden="true"></i></a>
-										{% endif %}
-									</div>
-								</div>
-							</div>
-						</div>
-						{% if forloop.counter|divisibleby:6 and forloop.counter > 0 and not forloop.last %}
-					</div>
-				</div>
-				<div class="item carousel-item">
-					<div class="row">
-						{% endif %}
-
-						{% endfor %}
-					</div>
-
-				</div>
-
-			</div>
-
-			<!-- left and right controls for the slide -->
-			<a class="carousel-control left carousel-control-prev" href="#demo{{forloop.counter}}" data-slide="prev">
-				<i class="fa fa-angle-left"></i>
-			</a>
-			<a class="carousel-control right carousel-control-next" href="#demo{{forloop.counter}}" data-slide="next">
-				<i class="fa fa-angle-right"></i>
-			</a>
-		</div>
-		{% endfor %}
-
-	</div>
-</div>
 {% endblock main_body %}
 
 {% block main_script %}
 <script type="text/javascript">
 	if (document.body.offsetWidth < 1024) {
 		document.body.style.backgroundColor = "#e2eaef";
-		document.getElementById('container_main').innerHTML = `			<div class="container-fluid">
+		document.getElementById('container_main').innerHTML = `	<div class="container-fluid">
 			
 		<!-- Trending -->
-			<h2>Trending <b>Products</b></h2>
+			<h2>Trending <b>Produ</b></h2>
 			<div style="text-align: center;">
 			<a href="/products/trend" class="btn" style="color: #be2714; font-size: 14px; padding-top: 0;  margin-top: -20px;">
 				<i class="fa fa-eye" aria-hidden="true" style=""></i> View All
 			</a></div>
 		<div class="row pt-1" style="justify-content: center;">
+			
+
 			{% for i in trend|slice:":4" %}
 			<div class="p-1 prod1212">
+				
 				<a href="{% url 'home' %}product/{{i.product_id}}" style="text-decoration: none; color: #231f20">
 				<div class="thumb-wrapper">
 					<div class="img-box">
@@ -340,64 +255,8 @@
 				</a>
 			</div>
 			{% endfor %}
-		</div>
-		<hr>
-		{% for product, range, nSlides in allProds %}
-	<h2>Flash Sale On <b>{{product.0.0.category}}</b></h2>
-		<div style="text-align: center;">
-			<a href="/products/{{product.0.0.category}}" class="btn" style="color: #be2714; font-size: 14px; padding-top: 0;  margin-top: -20px;">
-				<i class="fa fa-eye" aria-hidden="true" style=""></i> View All
-			</a></div>
-			<div class="row" style="justify-content: center;">
-			{% for i in product|slice:":4" %}
-			<div class="p-1 prod1212">
-						<div class="thumb-wrapper">
-							<div class="img-box">
-								<img src="{{i.0.image1.url}}" class="img-responsive img-fluid" alt="">
-							</div>
-							<div class="thumb-content">
-								<small><a href="product/{{i.0.product_id}}" style="text-decoration: none; color: #231f20"> {{i.0.product_name}}</a>
-								</small>
-								<p class="item-price"><strike><i class="fa fa-inr"
-														aria-hidden="true"></i>{{i.0.price_not}}</strike> <span><i class="fa fa-inr"
-												aria-hidden="true"></i>{{i.0.price}}</span></p>
-
-								<div>
-										{% if i.1 %}
-										<a p_id="{{i.0.product_id}}" class="btn btn-primary oprbtn" id="ord{{i.0.product_id}}">Order Now</a>
-										<div id="ord{{i.0.product_id}}sizesof" style="display: none;">
-													{% for me in i.1 %}
-													<form method="GET" style="display: inline;" action="/order_now">
-														<input type="text" name="prod_id" value="{{i.0.product_id}}" style="display: none;">
-														<input type="size" name="prod_size" value="{{me.size}}" style="display: none;">
-														<button type="submit" class="btn pt-1 pb-1 pr-2 pl-2">{{me.size}}</button>
-													</form>	
-													{% endfor %}
-												</div>
-												<a p_id="{{i.0.product_id}}" class="btn btn-primary oprbtn"  style="padding: 5px 10px 5px 5px;" id="atc{{i.0.product_id}}"><i class="fa fa-cart-plus" aria-hidden="true"></i></a>
-												<div id="atc{{i.0.product_id}}sizesof" style="display: none;">
-													{% for me in i.1 %}
-													<a prod_id="{{i.0.product_id}}" class="btn pt-1 pb-1 pr-2 pl-2 add_to_cart">{{me.size}}</a>
-													{% endfor %}
-												</div>
-										{% else %}
-											<form method="GET" style="display: inline;" action="/order_now">
-														<input type="text" name="prod_id" value="{{i.0.product_id}}" style="display: none;">
-										
-														<button type="submit" class="btn btn-primary oprbtn">Order Now</button>
-													</form>	
-												<a prod_id="{{i.0.product_id}}" class="btn pt-1 pb-1 pr-2 pl-2 add_to_cart"><i class="fa fa-cart-plus" aria-hidden="true"></i></a>
-										{% endif %}
-									</div>
-							</div>
-						</div>
-					</div>
-			{% endfor %}
-		</div>
-
-		<hr>
-	{% endfor %}
-</div>`;
+		</div>`
+		
 	}
 </script>
 <script type="text/javascript">
