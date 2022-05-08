@@ -10,7 +10,11 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.csrf import csrf_exempt
 from .PayTm import Checksum
+import numpy as np
+import pandas as pd
 import logging
+import sklearn
+from sklearn.decomposition import PCA
 
 def index(request):
 	if request.user.is_superuser:
@@ -24,6 +28,39 @@ def index(request):
 	allProds = []
 	catprods = Product.objects.values('category', 'product_id')
 	cats = {item['category'] for item in catprods}
+	# print(Results.objects.values('user_id')[1]['user_id'])
+	ids = []
+	cats = []
+	for i in range(len(Results.objects.all())):
+		ids.append(Results.objects.values('user_id')[i]['user_id'])
+	for i in range(len(Results.objects.all())):
+		cats.append(Results.objects.values('cat_name')[i]['cat_name'])
+
+	print(cats)
+
+	cust_prod = pd.crosstab(ids, cats)
+	print(cust_prod)
+
+	pca = PCA(n_components=3)
+	pca.fit(cust_prod)
+	pca_samples = pca.transform(cust_prod)
+	ps = pd.DataFrame(pca_samples)
+	tocluster = pd.DataFrame(ps[[2,1]])
+	tocluster = pd.DataFrame(ps[[2,1]])
+	from sklearn.cluster import KMeans
+	from sklearn.metrics import silhouette_score
+
+	clusterer = KMeans(n_clusters=3,random_state=42).fit(tocluster)
+	centers = clusterer.cluster_centers_
+	c_preds = clusterer.predict(tocluster)
+	print (c_preds)
+	clust_prod = cust_prod.copy()
+	clust_prod['cluster'] = c_preds
+	c0 = clust_prod[clust_prod['cluster']==0].drop('cluster',axis=1).mean()
+	c1 = clust_prod[clust_prod['cluster']==1].drop('cluster',axis=1).mean()
+	c2 = clust_prod[clust_prod['cluster']==2].drop('cluster',axis=1).mean()
+	c3 = clust_prod[clust_prod['cluster']==3].drop('cluster',axis=1).mean()
+	print(c0.sort_values(ascending=False)[0:10])
 	for cat in cats:
 		prod = []
 		for p in [i for i in Product.objects.filter(category=cat)]:
