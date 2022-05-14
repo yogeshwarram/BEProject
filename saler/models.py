@@ -258,6 +258,7 @@ class MainProduct(models.Model):
    product_name=models.CharField(max_length=100)
    cat_id=models.CharField(max_length=100)
    cat_name=models.CharField(max_length=100)
+   price=models.CharField(max_length=100)
 
 class MainCat(models.Model):
 	cat_id=models.CharField(max_length=100)
