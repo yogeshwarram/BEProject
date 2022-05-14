@@ -60,6 +60,8 @@ def index(request):
 	centers = clusterer.cluster_centers_
 	c_preds = clusterer.predict(tocluster)
 
+	recommended_cluster = 0
+
 	if(request.user.id != None):
 		uD = UserDetail.objects.get(user = request.user)
 		myId = uD.u_id
