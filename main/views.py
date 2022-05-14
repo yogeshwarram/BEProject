@@ -36,17 +36,15 @@ def index(request):
 	for i in range(len(Results.objects.all())):
 		cats.append(Results.objects.values('cat_name')[i]['cat_name'])
 
-	print(cats)
-
 	cust_prod = pd.crosstab(ids, cats)
-	print(cust_prod)
 
 	pca = PCA(n_components=3)
 	pca.fit(cust_prod)
 	pca_samples = pca.transform(cust_prod)
 	ps = pd.DataFrame(pca_samples)
+
 	tocluster = pd.DataFrame(ps[[2,1]])
-	tocluster = pd.DataFrame(ps[[2,1]])
+	
 	from sklearn.cluster import KMeans
 	from sklearn.metrics import silhouette_score
 
@@ -151,13 +149,14 @@ def productView(request, prod_id):
 		ProductReview(user=request.user,product=prod,review=review).save()
 		return redirect(f"/product/{prod_id}")
 
-	prod = Product.objects.filter(product_id = prod_id).first()
+	prod = MainProduct.objects.filter(product_id = prod_id).first()
+	print(prod)
 	params = {
 		'product':prod,
-		'product_review': ProductReview.objects.filter(product = prod),
-		'sizes':[item for item in ProductSize.objects.filter(product=Product.objects.filter(product_id = prod_id)[0])],
+		#'product_review': ProductReview.objects.filter(product = prod),
+		#'sizes':[item for item in ProductSize.objects.filter(product=Product.objects.filter(product_id = prod_id)[0])],
 		'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
-		'category':category.objects.all(),
+		#'category':category.objects.all(),
 	}
 	return render(request, 'main/single.html', params)
 
