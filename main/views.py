@@ -44,6 +44,13 @@ def index(request):
 	ps = pd.DataFrame(pca_samples)
 
 	tocluster = pd.DataFrame(ps[[2,1]])
+
+	ids = set(ids)
+	ids = list(ids)
+	tocluster['3'] = sorted(ids)
+
+	rc = tocluster[tocluster['3']=='4']
+	tocluster = tocluster.set_index('3')
 	
 	from sklearn.cluster import KMeans
 	from sklearn.metrics import silhouette_score
@@ -51,14 +58,45 @@ def index(request):
 	clusterer = KMeans(n_clusters=3,random_state=42).fit(tocluster)
 	centers = clusterer.cluster_centers_
 	c_preds = clusterer.predict(tocluster)
-	print (c_preds)
+
+	recommended_cluster = 0
+
+	if(request.user.id != None):
+		uD = UserDetail.objects.get(user = request.user)
+		myId = uD.u_id
+
+		recommended_cluster = clusterer.predict(rc[[2,1]])
+		recommended_cluster = int(recommended_cluster)
+
+	
+	try:
+		rc = tocluster[tocluster['3']==myId]
+		recommended_cluster = clusterer.predict(rc[[2,1]])
+	except:
+		print(">>> New User (Haven't ordered yet!)")
+
+
+
 	clust_prod = cust_prod.copy()
 	clust_prod['cluster'] = c_preds
 	c0 = clust_prod[clust_prod['cluster']==0].drop('cluster',axis=1).mean()
 	c1 = clust_prod[clust_prod['cluster']==1].drop('cluster',axis=1).mean()
 	c2 = clust_prod[clust_prod['cluster']==2].drop('cluster',axis=1).mean()
 	c3 = clust_prod[clust_prod['cluster']==3].drop('cluster',axis=1).mean()
-	print(c0.sort_values(ascending=False)[0:10])
+
+
+	myCluster = c0.sort_values(ascending=False)[0:10]
+
+	if recommended_cluster == 1:
+		myCluster = c1.sort_values(ascending=False)[0:10]
+	elif recommended_cluster == 2:
+		myCluster = c2.sort_values(ascending=False)[0:10]
+	elif recommended_cluster == 3:
+		myCluster = c3.sort_values(ascending=False)[0:10]
+
+	recommendations = list(myCluster.index)
+	# print(f">>> My recommendations = {recommendations}")
+
 	for cat in cats:
 		prod = []
 		for p in [i for i in Product.objects.filter(category=cat)]:
@@ -78,6 +116,7 @@ def index(request):
 		'trend': trend.objects.order_by('-number')[0:30],
 		'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
 		'main_prod': MainProduct.objects.all(),	
+		'recommendations': recommendations,
 	}
 
 	print(MainProduct.objects.all())
