@@ -15,6 +15,7 @@ import pandas as pd
 import logging
 import sklearn
 from sklearn.decomposition import PCA
+import random
 
 def index(request):
 	if request.user.is_superuser:
@@ -96,7 +97,12 @@ def index(request):
 
 	recommendations = list(myCluster.index)
 	# print(f">>> My recommendations = {recommendations}")
-
+	allMainProds =[]
+	for catId in recommendations:
+    		#allMainProds.append(random.choice(MainProduct.objects.filter(cat_id = catId)))
+			print(MainProduct.objects.filter(cat_id = catId))
+	print(allMainProds)
+	print(f"recommendations = {recommendations}")
 	for cat in cats:
 		prod = []
 		for p in [i for i in Product.objects.filter(category=cat)]:
@@ -215,9 +221,10 @@ def view_all(request, catg):
 			prod.append([p.product,[item for item in ProductSize.objects.filter(product=p.product)]])
 		params = {
 			'product':prod,
-			'catg':'Treanding',
+			'catg':'Trending',
 			'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
 			'category':category.objects.all(),
+			'main_product': MainProduct.objects.all(),
 			}
 		return render(request, 'main/view_all.html', params)
 	else:
@@ -279,7 +286,8 @@ def cart(request):
 		for p in cart_prods:
 			tempTotal = p.number * Product.objects.filter(product_id=p.product_id)[0].price
 			subtotal += tempTotal
-			tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			# tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			tax+=12.0
 
 		for cprod in cart_prods:
 			prod = Product.objects.filter(product_id=cprod.product_id)[0]
@@ -328,7 +336,8 @@ def plus_element_cart(request):
 		for p in cart_prods2:
 			tempTotal = p.number * Product.objects.filter(product_id=p.product_id)[0].price
 			subtotal += tempTotal
-			tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			# tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			tax+=12.0
 
 		datas = {
 			'num':Cart.objects.get(id=prod_id).number,
@@ -355,7 +364,8 @@ def minus_element_cart(request):
 		for p in cart_prods2:
 			tempTotal = p.number * Product.objects.filter(product_id=p.product_id)[0].price
 			subtotal += tempTotal
-			tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			# tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			tax+=12.0
 
 		datas = {
 			'num':Cart.objects.get(id=prod_id).number,
@@ -382,7 +392,8 @@ def delete_from_cart(request):
 		for p in cart_prods2:
 			tempTotal = p.number * Product.objects.filter(product_id=p.product_id)[0].price
 			subtotal += tempTotal
-			tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			# tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+			tax+=12.0
 
 		datas = {
 			'num':len(cart_prods2),
@@ -402,7 +413,8 @@ def order_now(request):
 	if request.method == 'GET':
 		new_prod = request.GET.get('prod_id')
 		prod_size = request.GET.get('prod_size')
-		allProds = [[1,Product.objects.filter(product_id=int(new_prod))[0]]]
+		allProds = [[1,MainProduct.objects.filter(product_id=int(new_prod))[0]]]
+		
 	if request.method == 'POST':
 		new_prod = request.GET.get('prod_id')
 		prod_size = request.GET.get('prod_size')
@@ -412,7 +424,7 @@ def order_now(request):
 			address_form.save()
 			u_form2.save()
 			pay_mode = request.POST.get('pay_mode')
-			trends = [i.product.product_id for i in trend.objects.all()]
+			trends = [i.product_id for i in trend.objects.all()]
 # 			print(order)
 			if pay_mode == 'on':
 				if Orders.objects.all().last():
@@ -420,13 +432,13 @@ def order_now(request):
 				else:
 					order_id = 'ordr001'
 				product1 = new_prod+'|'+str(1)+','
-				Orders(order_id=order_id,user=request.user,saler=Product.objects.filter(product_id=int(new_prod)).first().shop,products=product1,size=prod_size).save()
-				if int(new_prod) in trends:
-				    t = trend.objects.filter(product = Product.objects.filter(product_id=int(new_prod)).first())[0]
-				    t.number += 1
-				    t.save()
-				else:
-				    trend(product = Product.objects.filter(product_id=int(new_prod)).first(), number=1).save()
+				Orders(order_id=order_id,user=request.user,saler=MainProduct.objects,products=product1,size=prod_size).save()
+				# if int(new_prod) in trends:
+				#     t = trend.objects.filter(product = MainProduct.objects.filter(product_id=int(new_prod)).first())[0]
+				#     t.number += 1
+				#     t.save()
+				# else:
+				#     trend(product = MainProduct.objects.filter(product_id=int(new_prod)).first(), number=1).save()
 				return redirect('/myorders')
 			else:
 				o_id = ''
@@ -436,22 +448,22 @@ def order_now(request):
 					order_id = 'ordr001'
 				o_id = order_id
 				product1 = new_prod+'|'+str(1)+','
-				Orders(order_id=order_id,user=request.user,saler=Product.objects.filter(product_id=int(new_prod)).first().shop,products=product1,size=prod_size).save()
-				if int(new_prod) in trends:
-				    t = trend.objects.filter(product = Product.objects.filter(product_id=int(new_prod)).first())[0]
-				    t.number += 1
-				    t.save()
-				else:
-				    trend(product = Product.objects.filter(product_id=int(new_prod)).first(), number=1).save()
+				Orders(order_id=order_id,user=request.user,saler=MainProduct.objects,products=product1,size=prod_size).save()
+				# if int(new_prod) in trends:
+				#     t = trend.objects.filter(product = Product.objects.filter(product_id=int(new_prod)).first())[0]
+				#     t.number += 1
+				#     t.save()
+				# else:
+				#     trend(product = MainProduct.objects.filter(product_id=int(new_prod)).first(), number=1).save()
 				delev = 0.0
-				subtotal = Product.objects.filter(product_id=int(new_prod)).first().price
-				tax = subtotal*int(Product.objects.filter(product_id=int(new_prod)).first().gst)/100
-	
+				subtotal = int(MainProduct.objects.filter(product_id=int(new_prod)).first().price)
+				# tax = subtotal*int(MainProduct.objects.filter(product_id=int(new_prod)).first().gst)/100
+				# tax+=12.0
 				param_dict = {
 
 		                'MID': 'YOUR_MID',
 		                'ORDER_ID': str(o_id),
-		                'TXN_AMOUNT': str(subtotal+tax+delev),
+		                'TXN_AMOUNT': str(subtotal+delev),
 		                'CUST_ID': request.user.username,
 		                'INDUSTRY_TYPE_ID': 'Retail',
 		                'WEBSITE': 'WEBSTAGING',
@@ -466,9 +478,12 @@ def order_now(request):
 		address_form = UserAddressForm(instance=request.user.userdetail)
 		u_form2 = UserAddressForm1(instance=request.user)
 	delev = 0.0
-	subtotal = Product.objects.filter(product_id=int(new_prod)).first().price
-	tax = subtotal*int(Product.objects.filter(product_id=int(new_prod)).first().gst)/100
-	totl = round(subtotal+tax+delev, 2)
+	subtotal = int(MainProduct.objects.filter(product_id=int(new_prod)).first().price)
+	# tax = subtotal*int(MainProduct.objects.filter(product_id=int(new_prod)).first().gst)/100
+	totl = 12
+	userDetail = UserDetail.objects.get(user = request.user)
+	cat_id = MainProduct.objects.filter(product_id=int(new_prod)).first().cat_id
+	Results(user_id = userDetail.u_id,cat_name =int(cat_id)).save()
 	params = {
 			'allProds':allProds,
 			'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
@@ -503,14 +518,14 @@ def checkout(request):
 					else:
 						order_id = 'ordr001'
 					product1 = item.product_id+'|'+str(item.number)+','
-					Orders(order_id=order_id,user=request.user,saler=Product.objects.filter(product_id=int(item.product_id)).first().shop,products=product1, size=item.product_size).save()
+					Orders(order_id=order_id,user=request.user,saler=Product.objects,products=product1, size=item.product_size).save()
 					item.delete()
-					if int(item.product_id) in trends:
-					    t = trend.objects.filter(product = Product.objects.filter(product_id=int(item.product_id)).first())[0]
-					    t.number += 1
-					    t.save()
-					else:
-					    trend(product = Product.objects.filter(product_id=int(item.product_id)).first(), number=1).save()
+					# if int(item.product_id) in trends:
+					#     t = trend.objects.filter(product = Product.objects.filter(product_id=int(item.product_id)).first())[0]
+					#     t.number += 1
+					#     t.save()
+					# else:
+					#     trend(product = Product.objects.filter(product_id=int(item.product_id)).first(), number=1).save()
 				return redirect('/myorders')
 			else:
 				temp = 1
@@ -523,7 +538,8 @@ def checkout(request):
 	for p in cart_prods:
 		tempTotal = p.number * Product.objects.filter(product_id=p.product_id)[0].price
 		subtotal += tempTotal
-		tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+		# tax += tempTotal*int(Product.objects.filter(product_id=p.product_id).first().gst)/100
+		tax+=12.0
 
 	if temp == 1:
 		o_id = ''
@@ -531,19 +547,19 @@ def checkout(request):
 			order_id = 'ordr'+str((Orders.objects.all().last().pk)+1)
 			o_id = order_id
 			product1 = item.product_id+'|'+str(item.number)+','
-			Orders(order_id=order_id,user=request.user,saler=Product.objects.filter(product_id=int(item.product_id)).first().shop,products=product1, size=item.product_size)
+			Orders(order_id=order_id,user=request.user,saler=Product.objects,products=product1, size=item.product_size)
 			
-			if int(item.product_id) in trends:
-			    t = trend.objects.filter(product = Product.objects.filter(product_id=int(item.product_id)).first())[0]
-			    t.number += 1
-			    t.save()
-			else:
-			    trend(product = Product.objects.filter(product_id=int(item.product_id)).first(), number=1)
+			# if int(item.product_id) in trends:
+			#     t = trend.objects.filter(product = MainProduct.objects.filter(product_id=int(item.product_id)).first())[0]
+			#     t.number += 1
+			#     t.save()
+			# else:
+			#     trend(product = MainProduct.objects.filter(product_id=int(item.product_id)).first(), number=1)
 		param_dict = {
 
                 'MID': 'YOUR_MID',
                 'ORDER_ID': str(o_id),
-                'TXN_AMOUNT': str(subtotal+tax+delev),
+                'TXN_AMOUNT': str(subtotal+delev),
                 'CUST_ID': request.user.username,
                 'INDUSTRY_TYPE_ID': 'Retail',
                 'WEBSITE': 'WEBSTAGING',
@@ -559,7 +575,7 @@ def checkout(request):
 			'cart_element_no' : len(cart_prods),
 			'address_form': address_form,
 			'u_form':u_form2,
-			'total':subtotal+tax+delev,
+			'total':subtotal+delev,
 			'category':category.objects.all(),
 		}
 	return render(request, 'main/checkout.html', params)
@@ -582,14 +598,14 @@ def handlerequest(request):
 				order_id = 'ordr'+str((Orders.objects.all().last().pk)+1)
 				o_id = order_id
 				product1 = item.product_id+'|'+str(item.number)+','
-				Orders(order_id=order_id,user=request.user,saler=Product.objects.filter(product_id=int(item.product_id)).first().shop,products=product1, size=item.product_size).save()
+				Orders(order_id=order_id,user=request.user,saler=MainProduct.objects,products=product1, size=item.product_size).save()
 				item.delete()
-				if int(item.product_id) in trends:
-				    t = trend.objects.filter(product = Product.objects.filter(product_id=int(item.product_id)).first())[0]
-				    t.number += 1
-				    t.save()
-				else:
-					trend(product = Product.objects.filter(product_id=int(item.product_id)).first(), number=1).save()
+				# if int(item.product_id) in trends:
+				#     t = trend.objects.filter(product = Product.objects.filter(product_id=int(item.product_id)).first())[0]
+				#     t.number += 1
+				#     t.save()
+				# else:
+				# 	trend(product = MainProduct.objects.filter(product_id=int(item.product_id)).first(), number=1).save()
 			print('order successful')
 		else:
 			print('order was not successful because' + response_dict['RESPMSG'])
