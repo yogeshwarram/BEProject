@@ -50,7 +50,14 @@ def index(request):
 	ids = list(ids)
 	tocluster['3'] = sorted(ids)
 
-	rc = tocluster[tocluster['3']=='4']
+	print(tocluster)
+
+	if request.user.id != None:
+		uD = UserDetail.objects.get(user = request.user)
+		myId = uD.u_id
+		rc = tocluster[tocluster['3']==str(myId)]
+	else:
+		rc = tocluster[tocluster['3']=='4']
 	tocluster = tocluster.set_index('3')
 	
 	from sklearn.cluster import KMeans
@@ -62,18 +69,16 @@ def index(request):
 
 	recommended_cluster = 0
 
-	if(request.user.id != None):
-		uD = UserDetail.objects.get(user = request.user)
-		myId = uD.u_id
+	# if request.user.id != None:
+	# 	recommended_cluster = clusterer.predict(rc[[2,1]])
+	# 	recommended_cluster = int(recommended_cluster)
 
+	flag = 0
+	try:
 		recommended_cluster = clusterer.predict(rc[[2,1]])
 		recommended_cluster = int(recommended_cluster)
-
-	
-	try:
-		rc = tocluster[tocluster['3']==myId]
-		recommended_cluster = clusterer.predict(rc[[2,1]])
 	except:
+		flag = 1
 		print(">>> New User (Haven't ordered yet!)")
 
 
@@ -96,13 +101,26 @@ def index(request):
 		myCluster = c3.sort_values(ascending=False)[0:10]
 
 	recommendations = list(myCluster.index)
+
+	print(Results.objects.filter(user_id = myId).first)
+
+	if flag == 0:
+    		recommendations = list(myCluster.index)
+	else:
+    		recommendations = []
+
+	
 	# print(f">>> My recommendations = {recommendations}")
 	allMainProds =[]
 	for catId in recommendations:
     		#allMainProds.append(random.choice(MainProduct.objects.filter(cat_id = catId)))
-			print(MainProduct.objects.filter(cat_id = catId))
-	print(allMainProds)
-	print(f"recommendations = {recommendations}")
+			list1 = MainProduct.objects.filter(cat_id = catId)
+			if(len(list1) > 1):
+    				allMainProds.append(random.choice(list1))
+			elif(len(list1) == 1):
+    				allMainProds.append(list1)
+			print(allMainProds)
+	#print(f"recommendations = {recommendations}")
 	for cat in cats:
 		prod = []
 		for p in [i for i in Product.objects.filter(category=cat)]:
@@ -122,10 +140,10 @@ def index(request):
 		'trend': trend.objects.order_by('-number')[0:30],
 		'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
 		'main_prod': MainProduct.objects.all(),	
-		'recommendations': recommendations,
+		'recommendations': allMainProds,
 	}
 
-	print(MainProduct.objects.all())
+	#print(MainProduct.objects.all())
 	
 	return render(request, 'main/index.html', params)
 

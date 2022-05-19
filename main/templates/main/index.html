@@ -152,8 +152,10 @@
 </div>
 <div id="container_main">
 	<div class="container">
+		
 				<!-- Treand -->
 		<div class="row">
+				
 			<div class="col-md-12">
 				
 				<h2>Trending <b>Products</b></h2>
@@ -215,6 +217,64 @@
 				</div>
 			</div>
 		</div>
+
+
+		<!-- Recommendation  -->
+		<h2>Recommendation <b>Products</b></h2>
+		<div id="trendCarousel" class="carousel carousel1 slide" data-ride="carousel" data-interval="0">
+			<!-- Carousel indicators -->
+			<ol class="carousel-indicators">
+				<li data-target="#trendCarousel" data-slide-to="0" class="active"></li>
+				<li data-target="#trendCarousel" data-slide-to="1"></li>
+				<li data-target="#trendCarousel" data-slide-to="2"></li>
+				<li data-target="#trendCarousel" data-slide-to="3"></li>
+				<li data-target="#trendCarousel" data-slide-to="4"></li>
+			</ol>
+			<!-- Wrapper for carousel items -->
+			<div class="carousel-inner">
+				<div class="item carousel-item active">
+					<div class="row">
+						<!-- {% for i in main_prod %}
+						<h1>{{i.product_name}}</h1>
+						{% endfor %} -->
+						{% for i in recommendations %}
+						{% if i.price > '0' %}
+						<div class="col-sm-2 p-0 pr-2">
+							<div class="thumb-wrapper">
+								<div class="img-box">
+									<img src="../../../media/products/images/grocery.jpg" class="img-responsive img-fluid" alt="">
+								</div>
+								<div class="thumb-content">
+									<h4><a href="product/{{i.product_id}}" style="text-decoration: none; color: #231f20">
+											{{i.product_name}}</a></h4>
+										
+									<p class="item-price"> <span><i
+												class="fa fa-inr" aria-hidden="true"></i>{{i.price}}</span></p>
+
+								</div>
+							</div>
+						</div>
+						{% endif %}
+						{% if forloop.counter|divisibleby:6 and forloop.counter > 0 and not forloop.last %}
+					</div>
+				</div>
+				<div class="item carousel-item">
+					<div class="row">
+						{% endif %}
+
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			<!-- Carousel controls -->
+			<a class="carousel-control left carousel-control-prev" href="#trendCarousel" data-slide="prev">
+				<i class="fa fa-angle-left"></i>
+			</a>
+			<a class="carousel-control right carousel-control-next" href="#trendCarousel" data-slide="next">
+				<i class="fa fa-angle-right"></i>
+			</a>
+		</div>
+
 	</div>
 
 {% endblock main_body %}
