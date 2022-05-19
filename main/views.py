@@ -102,7 +102,7 @@ def index(request):
 
 	recommendations = list(myCluster.index)
 
-	print(Results.objects.filter(user_id = myId).first)
+	#print(Results.objects.filter(user_id = myId).first)
 
 	if flag == 0:
     		recommendations = list(myCluster.index)
