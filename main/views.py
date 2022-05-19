@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import logging
 import sklearn
+from datetime import date
 from sklearn.decomposition import PCA
 import random
 
@@ -29,7 +30,7 @@ def index(request):
 	allProds = []
 	catprods = Product.objects.values('category', 'product_id')
 	cats = {item['category'] for item in catprods}
-	# print(Results.objects.values('user_id')[1]['user_id'])
+
 	ids = []
 	cats = []
 	for i in range(len(Results.objects.all())):
@@ -38,6 +39,35 @@ def index(request):
 		cats.append(Results.objects.values('cat_name')[i]['cat_name'])
 
 	cust_prod = pd.crosstab(ids, cats)
+
+	cust_prod2 = cust_prod
+	print("!!!cust prod!!!")
+
+	user_ids = list(cust_prod.index)
+	agex = []
+	age = []
+	sex = []
+	allUsers = UserDetail.objects.all()
+	for i in user_ids:
+		agex.append(allUsers[int(i)].dob)
+
+		gen = allUsers[int(i)].sex
+		if gen == 'Male':
+			sex.append(0)
+		elif gen == 'Female':
+			sex.append(1)
+		else:
+			sex.append(2)
+
+	for i in range(len(agex)):
+		agei = str(date.today() - agex[4])
+		agei = agei.split()
+		agei = agei[0]
+		age.append(agei)
+	print(age)
+	cust_prod2['Age'] = age
+	cust_prod2['Sex'] = sex
+	print(cust_prod2)
 
 	pca = PCA(n_components=3)
 	pca.fit(cust_prod)
@@ -49,8 +79,6 @@ def index(request):
 	ids = set(ids)
 	ids = list(ids)
 	tocluster['3'] = sorted(ids)
-
-	print(tocluster)
 
 	if request.user.id != None:
 		uD = UserDetail.objects.get(user = request.user)
@@ -69,10 +97,6 @@ def index(request):
 
 	recommended_cluster = 0
 
-	# if request.user.id != None:
-	# 	recommended_cluster = clusterer.predict(rc[[2,1]])
-	# 	recommended_cluster = int(recommended_cluster)
-
 	flag = 0
 	try:
 		recommended_cluster = clusterer.predict(rc[[2,1]])
@@ -80,7 +104,6 @@ def index(request):
 	except:
 		flag = 1
 		print(">>> New User (Haven't ordered yet!)")
-
 
 
 	clust_prod = cust_prod.copy()
@@ -101,26 +124,21 @@ def index(request):
 		myCluster = c3.sort_values(ascending=False)[0:10]
 
 	recommendations = list(myCluster.index)
-
-	#print(Results.objects.filter(user_id = myId).first)
-
 	if flag == 0:
-    		recommendations = list(myCluster.index)
+		recommendations = list(myCluster.index)
 	else:
-    		recommendations = []
+		recommendations = []
 
-	
-	# print(f">>> My recommendations = {recommendations}")
 	allMainProds =[]
+
 	for catId in recommendations:
-    		#allMainProds.append(random.choice(MainProduct.objects.filter(cat_id = catId)))
-			list1 = MainProduct.objects.filter(cat_id = catId)
-			if(len(list1) > 1):
-    				allMainProds.append(random.choice(list1))
-			elif(len(list1) == 1):
-    				allMainProds.append(list1)
-			print(allMainProds)
-	#print(f"recommendations = {recommendations}")
+    	#allMainProds.append(random.choice(MainProduct.objects.filter(cat_id = catId)))
+		list1 = MainProduct.objects.filter(cat_id = catId)
+		if(len(list1) > 1):
+				allMainProds.append(random.choice(list1))
+		elif(len(list1) == 1):
+				allMainProds.append(list1)
+
 	for cat in cats:
 		prod = []
 		for p in [i for i in Product.objects.filter(category=cat)]:
@@ -133,17 +151,12 @@ def index(request):
 		'sliders':Slider.objects.all(),
 		'allProds':allProds,
 		'category':category.objects.all(),
-		#'prod_men' : [i for i in prod if i.buyer_gender == 'Male'],
-		#'prod_women' : [i for i in prod if i.buyer_gender == 'Female'],
-		#'prod_other' : [i for i in prod if i.buyer_gender == 'All'],
 		'dow' : dow.objects.all()[0:30],
 		'trend': trend.objects.order_by('-number')[0:30],
 		'cart_element_no' : len([p for p in Cart.objects.all() if p.user == request.user]),
-		'main_prod': MainProduct.objects.all(),	
+		'main_prod': MainProduct.objects.all(),
 		'recommendations': allMainProds,
 	}
-
-	#print(MainProduct.objects.all())
 	
 	return render(request, 'main/index.html', params)
 
