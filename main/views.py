@@ -41,7 +41,6 @@ def index(request):
 	cust_prod = pd.crosstab(ids, cats)
 
 	cust_prod2 = cust_prod
-	print("!!!cust prod!!!")
 
 	user_ids = list(cust_prod.index)
 	agex = []
@@ -64,10 +63,9 @@ def index(request):
 		agei = agei.split()
 		agei = agei[0]
 		age.append(agei)
-	print(age)
+
 	cust_prod2['Age'] = age
 	cust_prod2['Sex'] = sex
-	print(cust_prod2)
 
 	pca = PCA(n_components=3)
 	pca.fit(cust_prod)
@@ -129,6 +127,10 @@ def index(request):
 	else:
 		recommendations = []
 
+	recommendations.remove('Age')
+	recommendations.remove('Sex')
+
+
 	allMainProds =[]
 
 	for catId in recommendations:
@@ -146,6 +148,8 @@ def index(request):
 		n = len(prod)
 		nSlides = 5
 		allProds.append([prod[::-1], range(1, nSlides), nSlides])
+
+	print(allMainProds)
 
 	params = {
 		'sliders':Slider.objects.all(),
